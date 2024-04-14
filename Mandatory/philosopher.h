@@ -19,6 +19,9 @@ typedef struct s_info
 typedef struct s_philo
 {
   pthread_mutex_t	*fork;
+  pthread_mutex_t	*global;
+  t_info info;
+  int id;
   int is_dead;
 } t_philo;
 
@@ -26,6 +29,7 @@ typedef struct s_global
 {
   t_info info;
   t_philo *philos;
+  pthread_mutex_t	*mutex;
   pthread_t *philos_threads;
 
 } t_global;

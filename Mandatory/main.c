@@ -26,34 +26,44 @@ static void init_global_info(t_global **global, int ac, char **av)
   (*global)->info = info;
   }
 
-static void *test(){
-  printf("test prev\n");
-  usleep(10000000);
-  printf("test\n");
-  return (NULL);
+static void *test(void *arg){
+    t_philo *philo = (t_philo *)arg;
+    
+    pthread_mutex_lock(philo->global);
+    printf("Identifiant du philosophe : %d\n", philo->id);
+    pthread_mutex_unlock(philo->global);
+    return NULL;
 }
 
 static void create_philosophers(t_global **global){
   int i;
 
-  i = 0;
+  i = -1;
   (*global)->philos = malloc(sizeof(t_philo) * (*global)->info.n_philo);
   if (!(*global)->philos)
       return;
+  (*global)->mutex = malloc(sizeof(pthread_mutex_t));
+  if (!(*global)->mutex)
+      return (free((*global)->philos));
+  pthread_mutex_init((*global)->mutex, NULL);
   (*global)->philos_threads = malloc(sizeof(pthread_t) * (*global)->info.n_philo);
   if (!(*global)->philos_threads)
-      return (free((*global)->philos));
-  while (i++ != (*global)->info.n_philo) {
+      return (free((*global)->philos), free((*global)->mutex));
+  while (++i != (*global)->info.n_philo) {
       (*global)->philos[i].is_dead = 0;
+      (*global)->philos[i].info = (*global)->info;
+      (*global)->philos[i].id = i;
+      (*global)->philos[i].global = (*global)->mutex;
       (*global)->philos[i].fork = malloc(sizeof(pthread_mutex_t));
       if (!(*global)->philos[i].fork)
         return (free((*global)->philos));
       pthread_mutex_init((*global)->philos[i].fork, NULL);
-      pthread_create(&((*global)->philos_threads[i]), NULL, &test, NULL);
+      pthread_create(&((*global)->philos_threads[i]), NULL, &test, &(*global)->philos[i]);
   }
-  i = 0;
-  while (i++ != (*global)->info.n_philo)
+  i = -1;
+  while (++i != (*global)->info.n_philo)
       pthread_join((*global)->philos_threads[i], NULL);
+  printf("fin du join\n");
 }
 
 static void start(int ac, char **av)
