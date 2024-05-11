@@ -16,19 +16,25 @@ typedef struct s_info
   int eat_interval;
 } t_info;
 
+// 0 = thinking
+// 1 = eating
+// 2 = sleeping
+// 3 = dead
+
 typedef struct s_philo
 {
   pthread_mutex_t	*fork;
   pthread_mutex_t	*global;
   t_info info;
   int id;
-  int is_dead;
+  int state;
 } t_philo;
 
 typedef struct s_global
 {
   t_info info;
   t_philo *philos;
+  pthread_mutex_t	*fork;
   pthread_mutex_t	*mutex;
   pthread_t *philos_threads;
 

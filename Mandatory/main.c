@@ -13,6 +13,19 @@ static int check_args(char **args)
   return (1);
 }
 
+static void set_state(t_philo *philo, int state)
+{
+    philo->state = state;
+    if (state == 0)
+        printf("Identifiant du philosophe : %d - pense\n", philo->id);
+    else if (state == 1)
+        printf("Identifiant du philosophe : %d - mange\n", philo->id);
+    else if (state == 2)
+        printf("Identifiant du philosophe : %d - dort\n", philo->id);
+    else if (state == 3)
+        printf("Identifiant du philosophe : %d - est mort\n", philo->id);
+} 
+
 static void init_global_info(t_global **global, int ac, char **av)
 {
   t_info info;
@@ -26,12 +39,47 @@ static void init_global_info(t_global **global, int ac, char **av)
   (*global)->info = info;
   }
 
+static void take_forks(t_philo *philo)
+{
+    if (philo->id == philo->info.n_philo - 1)
+    {
+        pthread_mutex_lock(philo->fork);
+        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, 0);
+        pthread_mutex_lock(philo->fork + philo->id);
+        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id);
+    }
+    else
+    {
+        pthread_mutex_lock(philo->fork + philo->id);
+        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id);
+        pthread_mutex_lock(philo->fork + philo->id + 1);
+        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id + 1);
+    }
+    set_state(philo, 1);
+}
+
+static void put_forks(t_philo *philo)
+{
+    pthread_mutex_unlock(philo->fork + philo->id);
+    if (philo->id == philo->info.n_philo - 1)
+    {
+        pthread_mutex_unlock(philo->fork);
+        //printf("Identifiant du philosophe : %d - pose fourchette n^%d\n", philo->id, 0);
+    }
+    else
+    {
+        pthread_mutex_unlock(philo->fork + philo->id + 1);
+        //printf("Identifiant du philosophe : %d - pose fourchette n^%d\n", philo->id, philo->id + 1);
+    }
+}
+
 static void *test(void *arg){
-    t_philo *philo = (t_philo *)arg;
+    t_philo *philo;
     
-    pthread_mutex_lock(philo->global);
-    printf("Identifiant du philosophe : %d\n", philo->id);
-    pthread_mutex_unlock(philo->global);
+    philo = (t_philo *)arg;
+
+    take_forks(philo);
+    put_forks(philo);
     return NULL;
 }
 
@@ -45,19 +93,21 @@ static void create_philosophers(t_global **global){
   (*global)->mutex = malloc(sizeof(pthread_mutex_t));
   if (!(*global)->mutex)
       return (free((*global)->philos));
+  (*global)->fork = malloc(sizeof(pthread_mutex_t) * (*global)->info.n_philo);
   pthread_mutex_init((*global)->mutex, NULL);
   (*global)->philos_threads = malloc(sizeof(pthread_t) * (*global)->info.n_philo);
   if (!(*global)->philos_threads)
       return (free((*global)->philos), free((*global)->mutex));
   while (++i != (*global)->info.n_philo) {
-      (*global)->philos[i].is_dead = 0;
       (*global)->philos[i].info = (*global)->info;
       (*global)->philos[i].id = i;
       (*global)->philos[i].global = (*global)->mutex;
-      (*global)->philos[i].fork = malloc(sizeof(pthread_mutex_t));
-      if (!(*global)->philos[i].fork)
-        return (free((*global)->philos));
-      pthread_mutex_init((*global)->philos[i].fork, NULL);
+      set_state(&(*global)->philos[i], 0);
+      pthread_mutex_init((*global)->fork + i, NULL);
+  }
+  i = -1;
+  while (++i != (*global)->info.n_philo){
+    (*global)->philos[i].fork = (*global)->fork;
       pthread_create(&((*global)->philos_threads[i]), NULL, &test, &(*global)->philos[i]);
   }
   i = -1;
