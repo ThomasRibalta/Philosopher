@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 typedef struct s_info
 {
@@ -14,6 +15,8 @@ typedef struct s_info
   int time_eat;
   int time_sleep;
   int eat_interval;
+  struct timeval start_time;
+
 } t_info;
 
 // 0 = thinking
@@ -25,9 +28,12 @@ typedef struct s_philo
 {
   pthread_mutex_t	*fork;
   pthread_mutex_t	*global;
+  pthread_mutex_t  *mutex;
+  struct timeval last_time_eat;
   t_info info;
   int id;
   int state;
+  bool is_dead;
 } t_philo;
 
 typedef struct s_global
@@ -36,6 +42,7 @@ typedef struct s_global
   t_philo *philos;
   pthread_mutex_t	*fork;
   pthread_mutex_t	*mutex;
+  pthread_mutex_t *philo_mutex;
   pthread_t *philos_threads;
 
 } t_global;
