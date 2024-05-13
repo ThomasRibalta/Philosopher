@@ -22,7 +22,8 @@ typedef struct s_info
 // 0 = thinking
 // 1 = eating
 // 2 = sleeping
-// 3 = dead
+// 3 = fork
+// 4 = dead
 
 typedef struct s_philo
 {
@@ -31,6 +32,7 @@ typedef struct s_philo
   pthread_mutex_t  *mutex;
   struct timeval last_time_eat;
   t_info info;
+  int n_eat;
   int id;
   int state;
   bool is_dead;

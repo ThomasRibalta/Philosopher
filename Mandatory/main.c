@@ -18,24 +18,41 @@ static void set_state(t_philo *philo, int state)
     struct timeval current_time;
     long long millis;
 
-
     gettimeofday(&current_time, NULL);
-    pthread_mutex_lock(philo->mutex);
     millis = ((current_time.tv_sec * 1000LL) + (current_time.tv_usec / 1000))
      - ((philo->info.start_time.tv_sec * 1000LL) + (philo->info.start_time.tv_usec / 1000));
-    pthread_mutex_unlock(philo->mutex);
     pthread_mutex_lock(philo->global);
     philo->state = state;
-    if (state == 0)
-        printf("%lldms Identifiant du philosophe : %d - pense\n", millis, philo->id);
-    else if (state == 1)
-        printf("%lldms Identifiant du philosophe : %d - mange\n", millis, philo->id);
-    else if (state == 2)
-        printf("%lldms Identifiant du philosophe : %d - dort\n", millis, philo->id);
-    else if (state == 3)
-        printf("%lldms Identifiant du philosophe : %d - est mort\n", millis, philo->id);
+    if (state == 0 && philo->is_dead == false)
+        printf("%lldms philosophe n^%d thinking\n", millis, philo->id);
+    else if (state == 1 && philo->is_dead == false)
+        printf("%lldms philosophe n^%d eating (%d)\n", millis, philo->id, philo->n_eat);
+    else if (state == 2 && philo->is_dead == false)
+        printf("%lldms philosophe n^%d sleeping\n", millis, philo->id);
+    else if (state == 3 && philo->is_dead == false)
+      printf("%lldms philosophe n^%d has taken a fork\n", millis, philo->id);
+    else if (state == 4 && philo->is_dead == true)
+        printf("%lldms philosophe n^%d died\n", millis, philo->id);
     pthread_mutex_unlock(philo->global);
 } 
+
+long int	get_time(void)
+{
+	long int			time;
+	struct timeval		current_time;
+
+	gettimeofday(&current_time, NULL);
+	return ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000));
+}
+
+void	ft_usleep(long int time_in_ms)
+{
+	long int	start_time;
+
+	start_time = get_time();
+	while ((get_time() - start_time) < time_in_ms)
+		usleep(time_in_ms / 10);
+}
 
 static void init_global_info(t_global **global, int ac, char **av)
 {
@@ -48,27 +65,26 @@ static void init_global_info(t_global **global, int ac, char **av)
   gettimeofday(&(info.start_time), NULL);
   if (ac == 6)
     info.eat_interval = ft_atoi(av[5]);
+  else
+    info.eat_interval = -1;
   (*global)->info = info;
   }
 
 static void take_forks(t_philo *philo)
 {
-    if (philo->id == philo->info.n_philo - 1)
-    {
-        pthread_mutex_lock(philo->fork);
-        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, 0);
-        pthread_mutex_lock(philo->fork + philo->id);
-        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id);
-    }
-    else
-    {
-        pthread_mutex_lock(philo->fork + philo->id);
-        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id);
-        pthread_mutex_lock(philo->fork + philo->id + 1);
-        //printf("Identifiant du philosophe : %d - prend fourchette n^%d\n", philo->id, philo->id + 1);
-    }
-    if (philo->is_dead == true)
-        return ((void) pthread_mutex_unlock(philo->fork + philo->id), (void) pthread_mutex_unlock(philo->fork + philo->id + 1));
+  if (philo->is_dead == true)
+    return;
+  pthread_mutex_lock(philo->fork + philo->id);
+  pthread_mutex_lock(philo->mutex);
+  if (philo->is_dead == true)
+    return ((void) pthread_mutex_unlock(philo->mutex), (void) pthread_mutex_unlock(philo->fork + philo->id));
+  pthread_mutex_unlock(philo->mutex);
+  pthread_mutex_lock(philo->fork + ((philo->id + 1) * (philo->id != philo->info.n_philo - 1)));
+  pthread_mutex_lock(philo->mutex);
+  if (philo->is_dead == true)
+    return ((void) pthread_mutex_unlock(philo->fork + philo->id), (void) pthread_mutex_unlock(philo->fork + ((philo->id + 1) * (philo->id != philo->info.n_philo - 1))), (void) pthread_mutex_unlock(philo->mutex));
+  pthread_mutex_unlock(philo->mutex);
+  set_state(philo, 3);
 }
 
 static void put_forks(t_philo *philo)
@@ -97,19 +113,23 @@ static void philo_sleep(t_philo *philo)
     if (philo->is_dead == true)
       return;
     set_state(philo, 2);
-    usleep(philo->info.time_sleep * 1000);
+    ft_usleep(philo->info.time_sleep);
     philo_think(philo);
 }
 
 static void philo_eat(t_philo *philo)
 {
+  set_state(philo, 1);
   pthread_mutex_lock(philo->mutex);
   gettimeofday(&(philo->last_time_eat), NULL);
   pthread_mutex_unlock(philo->mutex);
   if (philo->is_dead == true)
     return;
-  set_state(philo, 1);
-  usleep(philo->info.time_eat * 1000);
+  ft_usleep(philo->info.time_eat);
+  pthread_mutex_lock(philo->mutex);
+  gettimeofday(&(philo->last_time_eat), NULL);
+  philo->n_eat++;
+  pthread_mutex_unlock(philo->mutex);
   put_forks(philo);
   philo_sleep(philo);
 }
@@ -118,9 +138,13 @@ static void *test(void *arg){
     t_philo *philo;
     
     philo = (t_philo *)arg;
+    philo->last_time_eat = philo->info.start_time;
     while (philo->is_dead == false){
-        take_forks(philo);
-        philo_eat(philo);
+      if (philo->info.n_philo > 1)
+      {
+          take_forks(philo);
+          philo_eat(philo);
+      }
     }
     return NULL;
 }
@@ -135,16 +159,14 @@ static bool one_philo_is_death(t_global **global)
     while (++i != (*global)->info.n_philo)
     {
         gettimeofday(&current_time, NULL);
-        pthread_mutex_lock((*global)->philos[i].mutex);
-        millis = ((current_time.tv_sec * 1000LL) + (current_time.tv_usec / 1000))
-         - (((*global)->philos[i].last_time_eat.tv_sec * 1000LL) + ((*global)->philos[i].last_time_eat.tv_usec / 1000));
-        pthread_mutex_unlock((*global)->philos[i].mutex);
-        if (millis > (*global)->info.time_die)
+        millis = ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000))
+         - (((*global)->philos[i].last_time_eat.tv_sec * 1000) + ((*global)->philos[i].last_time_eat.tv_usec / 1000));
+        if (millis == (*global)->info.time_die && (*global)->philos[i].state != 1)
         {
             pthread_mutex_lock((*global)->philos[i].global);
             (*global)->philos[i].is_dead = true;
             pthread_mutex_unlock((*global)->philos[i].global);
-            set_state(&(*global)->philos[i], 3);
+            set_state(&(*global)->philos[i], 4);
             return (true);
         }
     }
@@ -158,10 +180,31 @@ static void kill_all_philos(t_global **global)
     i = -1;
     while (++i != (*global)->info.n_philo)
     {
-        pthread_mutex_lock((*global)->philos[i].global);
         (*global)->philos[i].is_dead = true;
-        pthread_mutex_unlock((*global)->philos[i].global);
     }
+}
+
+static bool end_eat_interval(t_global **global)
+{
+    int i;
+    struct timeval current_time;
+    long long millis;
+    bool result;
+
+    i = -1;
+    while (++i != (*global)->info.n_philo)
+    {
+        if ((*global)->philos[i].n_eat >= (*global)->info.eat_interval && (*global)->info.eat_interval != -1)
+        {
+            result = true;
+        }
+        else
+        {
+            result = false;
+            break;
+        }
+    }
+    return (result);
 }
 
 static void *mind(void *arg)
@@ -171,9 +214,11 @@ static void *mind(void *arg)
     global = (t_global **)arg;
     while (1)
     {
-        if (one_philo_is_death(global))
+        if (one_philo_is_death(global) || end_eat_interval(global))
         {
+          pthread_mutex_lock((*global)->mutex);
           kill_all_philos(global);
+          pthread_mutex_unlock((*global)->mutex);
           return (NULL);
         }
     }
@@ -205,7 +250,7 @@ static void create_philosophers(t_global **global){
       (*global)->philos[i].id = i;
       (*global)->philos[i].global = (*global)->mutex;
       (*global)->philos[i].is_dead = false;
-      (*global)->philos[i].last_time_eat = (*global)->info.start_time;
+      (*global)->philos[i].n_eat = 0;
       pthread_mutex_init((*global)->fork + i, NULL);
   }
   i = -1;
@@ -218,6 +263,32 @@ static void create_philosophers(t_global **global){
   while (++i != (*global)->info.n_philo)
       pthread_join((*global)->philos_threads[i], NULL);
   pthread_join((*global)->philos_threads[i], NULL);
+
+  free((*global)->philos);
+  free((*global)->mutex);
+  free((*global)->fork);
+  free((*global)->philo_mutex);
+  free((*global)->philos_threads);
+}
+
+static void free_all(t_global **global)
+{
+  int i;
+
+  i = -1;
+  while (++i != (*global)->info.n_philo)
+  {
+    pthread_mutex_destroy((*global)->philo_mutex + i);
+    pthread_mutex_destroy((*global)->fork + i);
+  }
+  pthread_mutex_destroy((*global)->philo_mutex + i);
+  pthread_mutex_destroy((*global)->mutex);
+  free((*global)->philos);
+  free((*global)->mutex);
+  free((*global)->fork);
+  free((*global)->philo_mutex);
+  free((*global)->philos_threads);
+  free(*global);
 }
 
 static void start(int ac, char **av)
@@ -228,6 +299,7 @@ static void start(int ac, char **av)
     return((void) printf("erreur malloc"), (void) 0);
   init_global_info(&global, ac, av);
   create_philosophers(&global);
+  //free_all(&global);
 }
 
 int main(int ac, char **av)
