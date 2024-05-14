@@ -263,12 +263,6 @@ static void create_philosophers(t_global **global){
   while (++i != (*global)->info.n_philo)
       pthread_join((*global)->philos_threads[i], NULL);
   pthread_join((*global)->philos_threads[i], NULL);
-
-  free((*global)->philos);
-  free((*global)->mutex);
-  free((*global)->fork);
-  free((*global)->philo_mutex);
-  free((*global)->philos_threads);
 }
 
 static void free_all(t_global **global)
@@ -299,7 +293,7 @@ static void start(int ac, char **av)
     return((void) printf("erreur malloc"), (void) 0);
   init_global_info(&global, ac, av);
   create_philosophers(&global);
-  //free_all(&global);
+  free_all(&global);
 }
 
 int main(int ac, char **av)
