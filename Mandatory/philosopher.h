@@ -51,5 +51,8 @@ typedef struct s_global
 
 
 int	ft_atoi(const char *str);
+void *philosopher_behavior(void *arg);
+void *mind(void *arg);
+void set_state(t_philo *philo, int state);
 
 #endif 
