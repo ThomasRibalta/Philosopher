@@ -149,7 +149,7 @@ static void *philosopher_behavior(void *arg) {
     t_philo *philo;
 
     philo = (t_philo *)arg;
-    philo->last_time_eat = philo->info.start_time;
+    //philo->last_time_eat = philo->info.start_time;
     while (philo->is_dead == false) {
         if (philo->info.n_philo > 1) {
             take_forks(philo);
@@ -247,6 +247,7 @@ static void create_philosophers(t_global **global) {
         (*global)->philos[i].mutex = (*global)->philo_mutex + i;
         (*global)->philos[i].id = i;
         (*global)->philos[i].global = (*global)->mutex;
+        (*global)->philos[i].last_time_eat = (*global)->info.start_time;
         (*global)->philos[i].is_dead = false;
         (*global)->philos[i].n_eat = 0;
         pthread_mutex_init((*global)->fork + i, NULL);
