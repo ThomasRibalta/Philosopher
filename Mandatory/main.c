@@ -159,6 +159,12 @@ static void *philosopher_behavior(void *arg) {
     return NULL;
 }
 
+void check_initialized_variables(t_philo philo){
+  printf("Checking initialized variables\n");
+  if (!philo.fork)
+    printf("%d Error: Variables not initialized\n", philo.id);
+}
+
 // Function to check if any philosopher has died
 static bool one_philo_is_death(t_global **global) {
     int i;
@@ -167,6 +173,7 @@ static bool one_philo_is_death(t_global **global) {
 
     i = -1;
     while (++i != (*global)->info.n_philo) {
+      check_initialized_variables((*global)->philos[i]);
         gettimeofday(&current_time, NULL);
         millis = ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000))
                 - (((*global)->philos[i].last_time_eat.tv_sec * 1000) + ((*global)->philos[i].last_time_eat.tv_usec / 1000));
@@ -251,6 +258,7 @@ static void create_philosophers(t_global **global) {
         (*global)->philos[i].is_dead = false;
         (*global)->philos[i].n_eat = 0;
         pthread_mutex_init((*global)->fork + i, NULL);
+        (*global)->philos[i].fork = (*global)->fork + i;
         pthread_create(&((*global)->philos_threads[i]), NULL, &philosopher_behavior, &(*global)->philos[i]);
     }
     pthread_create(&((*global)->philos_threads[i]), NULL, &mind, global);
