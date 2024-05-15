@@ -25,7 +25,8 @@ int	ft_atoi(const char *str)
 }
 
 // Function to set philosopher state
-void set_state(t_philo *philo, int state) {
+void set_state(t_philo *philo, int state)
+{
     struct timeval current_time;
     long long millis;
 
@@ -48,7 +49,8 @@ void set_state(t_philo *philo, int state) {
 }
 
 // Function to simulate thread sleeping
-void ft_usleep(long int time_in_ms) {
+void ft_usleep(long int time_in_ms)
+{
     long int start_time;
 		struct timeval current_time;
 
@@ -59,7 +61,8 @@ void ft_usleep(long int time_in_ms) {
 }
 
 // Function to initialize global information
-static void init_global_info(t_global **global, int ac, char **av) {
+void init_global_info(t_global **global, int ac, char **av)
+{
     t_info info;
 
     info.n_philo = atoi(av[1]);
@@ -75,12 +78,14 @@ static void init_global_info(t_global **global, int ac, char **av) {
 }
 
 // Function to take forks
-static void take_forks(t_philo *philo) {
+void take_forks(t_philo *philo)
+{
     if (philo->is_dead == true)
         return;
     pthread_mutex_lock(philo->fork + philo->id);
     pthread_mutex_lock(philo->mutex);
-    if (philo->is_dead == true) {
+    if (philo->is_dead == true)
+		{
         pthread_mutex_unlock(philo->mutex);
         pthread_mutex_unlock(philo->fork + philo->id);
         return;
@@ -88,7 +93,8 @@ static void take_forks(t_philo *philo) {
     pthread_mutex_unlock(philo->mutex);
     pthread_mutex_lock(philo->fork + ((philo->id + 1) * (philo->id != philo->info.n_philo - 1)));
     pthread_mutex_lock(philo->mutex);
-    if (philo->is_dead == true) {
+    if (philo->is_dead == true)
+		{
         pthread_mutex_unlock(philo->mutex);
         pthread_mutex_unlock(philo->fork + philo->id);
         pthread_mutex_unlock(philo->fork + ((philo->id + 1) * (philo->id != philo->info.n_philo - 1)));
@@ -99,7 +105,8 @@ static void take_forks(t_philo *philo) {
 }
 
 // Function to put forks
-static void put_forks(t_philo *philo) {
+void put_forks(t_philo *philo)
+{
     pthread_mutex_unlock(philo->fork + philo->id);
     if (philo->id == philo->info.n_philo - 1)
         pthread_mutex_unlock(philo->fork);

@@ -26,7 +26,7 @@ static void make_philo(t_global **global, int i)
         (*global)->philos[i].is_dead = false;
         (*global)->philos[i].n_eat = 0;
         pthread_mutex_init((*global)->fork + i, NULL);
-        (*global)->philos[i].fork = (*global)->fork + i;
+        (*global)->philos[i].fork = (*global)->fork;
         pthread_create(&((*global)->philos_threads[i]), NULL, &philosopher_behavior, &(*global)->philos[i]);
 }
 
