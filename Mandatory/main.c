@@ -1,20 +1,5 @@
 #include "philosopher.h"
 
-// Function to check command line arguments
-static int check_args(char **args)
-{
-    int tmp;
-
-    tmp = 0;
-    while (*args)
-    {
-        if (atoi(*args) <= 0)
-            return (0);
-        args++;
-    }
-    return (1);
-}
-
 static void make_philo(t_global **global, int i)
 {
         pthread_mutex_init((*global)->philo_mutex + i, NULL);
