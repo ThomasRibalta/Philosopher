@@ -70,8 +70,10 @@ static void init_global_info(t_info *info, int ac, char **av){
         info->eat_interval = -1;
     sem_unlink("/forks");
 	sem_unlink("/write");
+    sem_unlink("/eat");
 	info->forks = sem_open("/forks", O_CREAT, S_IRWXU, info->n_philo);
 	info->writing = sem_open("/write", O_CREAT, S_IRWXU, 1);
+    info->eat = sem_open("/eat", O_CREAT, S_IRWXU, 1);
     info->philos = malloc(sizeof(t_philo) * info->n_philo);
     if (!info->philos)
     {
@@ -145,8 +147,10 @@ static void put_forks(t_philo *philo)
 
 static void philo_eat(t_philo *philo)
 {
+    sem_wait(philo->info->eat);
     set_state(philo, 1);
     gettimeofday(&(philo->last_time_eat), NULL);
+    sem_post(philo->info->eat);
     ft_usleep(philo->info->time_eat);
     philo->n_eat++;
     put_forks(philo);
@@ -155,18 +159,72 @@ static void philo_eat(t_philo *philo)
     set_state(philo, 0);
 }
 
+static int philo_is_death(t_philo *philo)
+{
+    long long millis;
+
+    millis = get_time() - ((philo->info->start_time.tv_sec * 1000) + (philo->info->start_time.tv_usec / 1000));
+    if (millis >= philo->info->time_die)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+static void kill_all(t_info *info)
+{
+    int i;
+
+    i = -1;
+    while (++i != info->n_philo)
+    {
+        if (info->philos[i].phil_fork_id != 0)
+            kill(info->philos[i].phil_fork_id, SIGKILL);
+    }
+}
+
+static void *mind(void *arg)
+{
+    t_philo *philo;
+
+    philo = (t_philo *)arg;
+    while (1)
+    {
+        sem_wait(philo->info->eat);
+        if (philo_is_death(philo))
+        {
+            set_state(philo, 4);
+            philo->info->end_process = 1;
+            sem_wait(philo->info->writing);
+            exit(1);
+        }
+        sem_post(philo->info->eat);
+        if (philo->info->end_process)
+            break;
+    }
+    return (NULL);
+}
+
 static void philosopher_behavior(t_philo *philo)
 {
-    while (1)
+    pthread_t philo_thread;
+
+    pthread_create(&philo_thread, NULL, &mind, philo);
+    while (!philo->info->end_process)
     {
         take_forks(philo);
         philo_eat(philo);
     }
+    pthread_join(philo_thread, NULL);
+    if (philo->info->end_process)
+        exit(1);
+    exit(0);
 }
 
 static void launch_processes(t_info *info)
 {
     int i;
+    int state;
 
     i = -1;
     while (++i != info->n_philo)
@@ -178,7 +236,26 @@ static void launch_processes(t_info *info)
     }
     i = -1;
     while (++i != info->n_philo)
-        waitpid(info->philos[i].phil_fork_id, NULL, 0);
+    {
+        waitpid(-1, &state, 0);
+        if (state != 0)
+        {
+            kill_all(info);
+            break;
+        }
+    }
+}
+
+static void free_all(t_info *info)
+{
+    free(info->philos);
+    sem_close(info->forks);
+    sem_close(info->writing);
+    sem_close(info->eat);
+    sem_unlink("/forks");
+	sem_unlink("/write");
+    sem_unlink("/eat");
+    free(info);
 }
 
 // Main function
@@ -200,6 +277,7 @@ int main(int ac, char **av) {
         init_global_info(info, ac, av);
         init_philos(info);
         launch_processes(info);
+        free_all(info);
     }
     return 0;
 }

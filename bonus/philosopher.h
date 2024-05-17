@@ -8,6 +8,8 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <semaphore.h>
+#include <signal.h>
+#include <sys/types.h>
 
 typedef struct s_philo
 {
@@ -26,8 +28,10 @@ typedef struct s_info
   int time_eat;
   int time_sleep;
   int eat_interval;
+  int end_process;
   sem_t *forks;
   sem_t *writing;
+  sem_t *eat;
   t_philo *philos;
   struct timeval start_time;
 } t_info;
