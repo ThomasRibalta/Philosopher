@@ -1,34 +1,46 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/19 17:39:30 by toto              #+#    #+#             */
+/*   Updated: 2024/05/19 17:39:31 by toto             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philosopher.h"
 
-static void putchar2(char c)
+static void	putchar2(char c)
 {
-    write(1, &c, 1);
+	write(1, &c, 1);
 }
 
-void put_long_long(long long n)
+void	put_long_long(long long n)
 {
-    if (n > 9)
-        put_long_long(n / 10);
-    putchar2(n % 10 + '0');
+	if (n > 9)
+		put_long_long(n / 10);
+	putchar2(n % 10 + '0');
 }
 
-long long get_time(void)
+long long	get_time(void)
 {
-    struct timeval current_time;
+	struct timeval	current_time;
 
-    gettimeofday(&current_time, NULL);
-    return ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000));
+	gettimeofday(&current_time, NULL);
+	return ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000));
 }
 
-void ft_usleep(long int time_in_ms)
+void	ft_usleep(long int time_in_ms)
 {
-    long int start_time;
-		struct timeval current_time;
+	long int		start_time;
+	struct timeval	current_time;
 
-    gettimeofday(&current_time, NULL);
-    start_time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
-    while ((get_time() - start_time) < time_in_ms)
-        usleep(time_in_ms / 10);
+	gettimeofday(&current_time, NULL);
+	start_time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
+	while ((get_time() - start_time) < time_in_ms)
+		usleep(time_in_ms / 10);
 }
 
 int	ft_atoi(const char *str)
