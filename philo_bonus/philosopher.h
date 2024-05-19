@@ -38,7 +38,6 @@ typedef struct s_info
 
 int ft_atoi(const char *str);
 void ft_usleep(long int time_in_ms);
-static void philo_eat(t_philo *philo);
 void *mind(void *arg);
 void kill_all(t_info *info);
 void free_all(t_info *info);

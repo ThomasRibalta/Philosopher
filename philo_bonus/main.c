@@ -2,9 +2,6 @@
 
 static int check_args(char **args)
 {
-    int tmp;
-
-    tmp = 0;
     while (*args)
     {
         if (atoi(*args) <= 0)
