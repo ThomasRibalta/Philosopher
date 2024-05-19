@@ -36,14 +36,15 @@ typedef struct s_info
   struct timeval start_time;
 } t_info;
 
-// 0 = thinking
-// 1 = eating
-// 2 = sleeping
-// 3 = fork
-// 4 = dead
-
 int ft_atoi(const char *str);
 void ft_usleep(long int time_in_ms);
+static void philo_eat(t_philo *philo);
+void *mind(void *arg);
+void kill_all(t_info *info);
+void free_all(t_info *info);
+void set_state(t_philo *philo, int state);
+void philosopher_behavior(t_philo *philo);
+void put_long_long(long long n);
 long long get_time(void);
 
 #endif 

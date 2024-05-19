@@ -30,7 +30,6 @@ static void philo_eat(t_philo *philo)
         return;
     ft_usleep(philo->info.time_eat);
     pthread_mutex_lock(philo->mutex);
-    //gettimeofday(&(philo->last_time_eat), NULL);
     philo->n_eat++;
     pthread_mutex_unlock(philo->mutex);
     put_forks(philo);

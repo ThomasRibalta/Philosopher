@@ -19,12 +19,6 @@ typedef struct s_info
 
 } t_info;
 
-// 0 = thinking
-// 1 = eating
-// 2 = sleeping
-// 3 = fork
-// 4 = dead
-
 typedef struct s_philo
 {
   pthread_mutex_t	*fork;
