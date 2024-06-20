@@ -23,12 +23,16 @@ static int check_args(char **args)
 	return (1);
 }
 
-static void init_global_info(t_info *info, int ac, char **av)
+static int init_global_info(t_info *info, int ac, char **av)
 {
 	info->n_philo = ft_atoi(av[1]);
+	if (info->n_philo < 1 || info->n_philo > 200)
+		return (1);
 	info->time_die = ft_atoi(av[2]);
 	info->time_eat = ft_atoi(av[3]);
 	info->time_sleep = ft_atoi(av[4]);
+	if (info->time_die <= 60 || info->time_eat <= 60 || info->time_sleep <= 60)
+		return (2);
 	info->end_process = 0;
 	if (ac == 6)
 		info->eat_interval = ft_atoi(av[5]);
@@ -40,6 +44,7 @@ static void init_global_info(t_info *info, int ac, char **av)
 	info->forks = sem_open("/philo_forks", O_CREAT, S_IRWXU, info->n_philo);
 	info->writing = sem_open("/philo_write", O_CREAT, S_IRWXU, 1);
 	info->eat = sem_open("/philo_eat", O_CREAT, S_IRWXU, 1);
+	return (0);
 }
 
 static void init_philos(t_info *info)
@@ -92,18 +97,18 @@ static void launch_processes(t_info *info)
 	sem_unlink("/philo_eat");
 }
 
-// Main function
 int main(int ac, char **av)
 {
 	t_info info;
 
 	if ((ac < 5 || ac > 6) && !check_args(av))
 	{
-		return (0);
+		return (aff_error(3));
 	}
 	else
 	{
-		init_global_info(&info, ac, av);
+		if(aff_error(init_global_info(&info, ac, av)) != 0)
+			return (0);
 		init_philos(&info);
 		launch_processes(&info);
 		free_all(&info);

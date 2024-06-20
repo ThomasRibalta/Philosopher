@@ -56,6 +56,7 @@ typedef struct s_info
 	long long		start_time;
 }					t_info;
 
+int					aff_error(int   e);
 int					ft_atoi(const char *str);
 void				ft_usleep(long int time_in_ms);
 void				*mind(void *arg);

@@ -35,7 +35,6 @@ void	kill_all(t_info *info)
 
 void	*mind(void *arg)
 {
-	(void)arg;
 	t_philo	*philo;
 	t_info	*info;
 
@@ -59,4 +58,15 @@ void	*mind(void *arg)
 			break ;
 	}
 	return (NULL);
+}
+
+int	aff_error(int	e)
+{
+	if (e == 1)
+		printf("Le nombre de philosopheur est incorrect\n");
+	else if (e == 2)
+		printf("On vous a dit au dessus de 60ms pour tout les times\n");
+	else if (e == 3)
+		printf("./philo_bonus nbPhilo time time time (nb_eat)\n");
+	return (e);
 }

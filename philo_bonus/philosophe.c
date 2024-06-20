@@ -66,24 +66,25 @@ void	philosopher_behavior(void *philo)
 {
 	t_philo	*philo2;
 	t_info			*info;
-	pthread_t		checker;
-
+	pthread_t	checker;
 
 	philo2 = philo;
 	info = philo2->info;
 	philo2->last_time_eat = get_time();
-	pthread_create(&(checker), NULL, &mind, philo);
+	pthread_create(&checker, NULL, mind, philo);
+	for (int i =0; i < 11; i++)
+		printf("%d\n", i);
 	if (philo2->id % 2)
 		usleep(15000);
-	while (!info->end_process)
+	while (!(info->end_process))
 	{
-		take_forks(philo);
-		philo_eat(philo);
+		take_forks(philo2);
+		philo_eat(philo2);
 		if (philo2->n_eat >= info->eat_interval && info->eat_interval != -1)
 			break ;
-		set_state(philo, 2);
+		set_state(philo2, 2);
 		ft_usleep(info->time_sleep);
-		set_state(philo, 0);
+		set_state(philo2, 0);
 	}
 	pthread_join(checker, NULL);
 	if (info->end_process)
