@@ -34,10 +34,7 @@ typedef struct s_philo
 	long long	last_time_eat;
 	struct s_info	*info;
 	pid_t			phil_fork_id;
-	int				fork_left;
-	int				fork_right;
 	int				n_eat;
-	pthread_t		checker;
 	int				id;
 }					t_philo;
 
