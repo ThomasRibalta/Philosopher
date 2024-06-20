@@ -6,7 +6,7 @@
 /*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:36:22 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:41:24 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 13:19:16 by toto             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,19 @@
 # include <fcntl.h>
 # include <sys/stat.h>
 
+struct s_info;
+
+
 typedef struct s_philo
 {
-	struct timeval	last_time_eat;
+	long long	last_time_eat;
 	struct s_info	*info;
 	pid_t			phil_fork_id;
+	int				fork_left;
+	int				fork_right;
 	int				n_eat;
+	pthread_t		checker;
 	int				id;
-	int				state;
 }					t_philo;
 
 typedef struct s_info
@@ -47,8 +52,8 @@ typedef struct s_info
 	sem_t			*forks;
 	sem_t			*writing;
 	sem_t			*eat;
-	t_philo			*philos;
-	struct timeval	start_time;
+	t_philo			philos[300];
+	long long		start_time;
 }					t_info;
 
 int					ft_atoi(const char *str);
@@ -57,8 +62,9 @@ void				*mind(void *arg);
 void				kill_all(t_info *info);
 void				free_all(t_info *info);
 void				set_state(t_philo *philo, int state);
-void				philosopher_behavior(t_philo *philo);
+void				philosopher_behavior(void *philo);
 void				put_long_long(long long n);
 long long			get_time(void);
+long long			time_diff(long long time1, long long time2);
 
 #endif

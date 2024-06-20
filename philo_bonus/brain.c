@@ -6,35 +6,20 @@
 /*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:36:52 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:36:53 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 15:05:38 by toto             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
-void	free_all(t_info *info)
+long long	time_diff(long long time1, long long time2)
 {
-	free(info->philos);
-	sem_close(info->forks);
-	sem_close(info->writing);
-	sem_close(info->eat);
-	sem_unlink("/forks");
-	sem_unlink("/write");
-	sem_unlink("/eat");
-	free(info);
+	return (time2 - time1);
 }
 
-int	philo_is_death(t_philo *philo)
+void free_all(t_info *info)
 {
-	long long	millis;
-
-	millis = get_time() - ((philo->last_time_eat.tv_sec * 1000)
-			+ (philo->last_time_eat.tv_usec / 1000));
-	if (millis >= philo->info->time_die)
-	{
-		return (1);
-	}
-	return (0);
+    (void)info;
 }
 
 void	kill_all(t_info *info)
@@ -42,29 +27,35 @@ void	kill_all(t_info *info)
 	int	i;
 
 	i = -1;
-	while (++i != info->n_philo)
+	while (++i < info->n_philo)
 	{
-		if (info->philos[i].phil_fork_id != 0)
-			kill(info->philos[i].phil_fork_id, SIGKILL);
+			kill(info->philos[i].phil_fork_id, 15);
 	}
 }
 
 void	*mind(void *arg)
 {
+	(void)arg;
 	t_philo	*philo;
+	t_info	*info;
 
 	philo = (t_philo *)arg;
+	info = philo->info;
 	while (1)
 	{
-		sem_wait(philo->info->eat);
-		if (philo_is_death(philo) || philo->n_eat == philo->info->eat_interval)
+		sem_wait(info->eat);
+		if (time_diff(philo->last_time_eat, get_time()) > info->time_die)
 		{
 			set_state(philo, 4);
-			philo->info->end_process = 1;
+			info->end_process = 1;
+			sem_wait(info->writing);
 			exit(1);
 		}
 		sem_post(philo->info->eat);
-		if (philo->info->end_process)
+		if (info->end_process)
+			break ;
+		usleep(1000);
+		if (info->eat_interval != -1 && philo->n_eat >= info->eat_interval)
 			break ;
 	}
 	return (NULL);

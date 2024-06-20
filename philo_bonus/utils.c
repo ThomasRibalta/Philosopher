@@ -6,7 +6,7 @@
 /*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:39:30 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:39:31 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 13:18:17 by toto             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,14 @@ long long	get_time(void)
 void	ft_usleep(long int time_in_ms)
 {
 	long int		start_time;
-	struct timeval	current_time;
-
-	gettimeofday(&current_time, NULL);
-	start_time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
-	while ((get_time() - start_time) < time_in_ms)
-		usleep(time_in_ms / 10);
+	
+	start_time = get_time();
+	while (true)
+	{
+		if (time_diff(start_time, get_time()) >= time_in_ms)
+			break ;
+		usleep(50);
+	}
 }
 
 int	ft_atoi(const char *str)
