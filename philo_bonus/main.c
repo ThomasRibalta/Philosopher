@@ -1,18 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/19 17:37:09 by toto              #+#    #+#             */
-/*   Updated: 2024/06/20 14:59:10 by toto             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "philosopher.h"
 
-static int check_args(char **args)
+static int	check_args(char **args)
 {
 	while (*args)
 	{
@@ -23,7 +11,7 @@ static int check_args(char **args)
 	return (1);
 }
 
-static int init_global_info(t_info *info, int ac, char **av)
+static int	init_global_info(t_info *info, int ac, char **av)
 {
 	info->n_philo = ft_atoi(av[1]);
 	if (info->n_philo < 1 || info->n_philo > 200)
@@ -47,9 +35,9 @@ static int init_global_info(t_info *info, int ac, char **av)
 	return (0);
 }
 
-static void init_philos(t_info *info)
+static void	init_philos(t_info *info)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	while (++i != info->n_philo)
@@ -61,11 +49,11 @@ static void init_philos(t_info *info)
 	}
 }
 
-static void launch_processes(t_info *info)
+static void	launch_processes(t_info *info)
 {
-	int i;
-	t_philo *philo;
-	int state;
+	t_philo	*philo;
+	int		i;
+	int		state;
 
 	i = -1;
 	philo = info->philos;
@@ -84,22 +72,15 @@ static void launch_processes(t_info *info)
 	{
 		waitpid(-1, &state, 0);
 		if (state != 0)
-		{
 			kill_all(info);
-			break;
-		}
+		if (state != 0)
+			break ;
 	}
-	sem_close(info->forks);
-	sem_close(info->writing);
-	sem_close(info->eat);
-	sem_unlink("/philo_forks");
-	sem_unlink("/philo_write");
-	sem_unlink("/philo_eat");
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
-	t_info info;
+	t_info	info;
 
 	if ((ac < 5 || ac > 6) && !check_args(av))
 	{
@@ -107,7 +88,7 @@ int main(int ac, char **av)
 	}
 	else
 	{
-		if(aff_error(init_global_info(&info, ac, av)) != 0)
+		if (aff_error(init_global_info(&info, ac, av)) != 0)
 			return (0);
 		init_philos(&info);
 		launch_processes(&info);

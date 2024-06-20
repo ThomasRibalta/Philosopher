@@ -82,7 +82,7 @@ void	init_global_info(t_global **global, int ac, char **av)
 	info.time_sleep = atoi(av[4]);
 	gettimeofday(&(info.start_time), NULL);
 	if (ac == 6)
-		info.eat_interval = atoi(av[5]);
+		info.eat_interval = atoi(av[5]) - 1;
 	else
 		info.eat_interval = -1;
 	(*global)->info = info;

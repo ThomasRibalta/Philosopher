@@ -34,8 +34,8 @@ long long	get_time(void)
 
 void	ft_usleep(long int time_in_ms)
 {
-	long int		start_time;
-	
+	long int	start_time;
+
 	start_time = get_time();
 	while (true)
 	{

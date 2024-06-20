@@ -26,16 +26,15 @@
 # include <fcntl.h>
 # include <sys/stat.h>
 
-struct s_info;
-
+struct	s_info;
 
 typedef struct s_philo
 {
-	long long	last_time_eat;
-	struct s_info	*info;
-	pid_t			phil_fork_id;
-	int				n_eat;
-	int				id;
+	struct s_info		*info;
+	long long		last_time_eat;
+	pid_t		phil_fork_id;
+	int			n_eat;
+	int			id;
 }					t_philo;
 
 typedef struct s_info
@@ -53,7 +52,7 @@ typedef struct s_info
 	long long		start_time;
 }					t_info;
 
-int					aff_error(int   e);
+int					aff_error(int e);
 int					ft_atoi(const char *str);
 void				ft_usleep(long int time_in_ms);
 void				*mind(void *arg);

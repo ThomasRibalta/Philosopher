@@ -14,7 +14,6 @@
 
 void	set_state(t_philo *philo, int state)
 {
-
 	sem_wait(philo->info->writing);
 	put_long_long(get_time() - philo->info->start_time);
 	write(1, "ms philosophe n^", 3);
@@ -64,16 +63,14 @@ void	philo_eat(t_philo *philo)
 
 void	philosopher_behavior(void *philo)
 {
-	t_philo	*philo2;
-	t_info			*info;
 	pthread_t	checker;
+	t_philo		*philo2;
+	t_info		*info;
 
 	philo2 = philo;
 	info = philo2->info;
 	philo2->last_time_eat = get_time();
 	pthread_create(&checker, NULL, mind, philo);
-	for (int i =0; i < 11; i++)
-		printf("%d\n", i);
 	if (philo2->id % 2)
 		usleep(15000);
 	while (!(info->end_process))

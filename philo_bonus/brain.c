@@ -17,9 +17,14 @@ long long	time_diff(long long time1, long long time2)
 	return (time2 - time1);
 }
 
-void free_all(t_info *info)
+void	free_all(t_info *info)
 {
-    (void)info;
+	sem_close(info->forks);
+	sem_close(info->writing);
+	sem_close(info->eat);
+	sem_unlink("/philo_forks");
+	sem_unlink("/philo_write");
+	sem_unlink("/philo_eat");
 }
 
 void	kill_all(t_info *info)
@@ -29,7 +34,7 @@ void	kill_all(t_info *info)
 	i = -1;
 	while (++i < info->n_philo)
 	{
-			kill(info->philos[i].phil_fork_id, 15);
+		kill(info->philos[i].phil_fork_id, 15);
 	}
 }
 
@@ -60,7 +65,7 @@ void	*mind(void *arg)
 	return (NULL);
 }
 
-int	aff_error(int	e)
+int	aff_error(int e)
 {
 	if (e == 1)
 		printf("Le nombre de philosopheur est incorrect\n");

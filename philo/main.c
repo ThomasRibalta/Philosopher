@@ -38,8 +38,8 @@ static void	make_philo(t_global **global, int i)
 	pthread_create(&((*global)->philos_threads[i]), NULL, &philosopher_behavior,
 		&(*global)->philos[i]);
 }
-// Function to create philosophers
-static void create_philosophers(t_global **global) {
+
+static void	create_philosophers(t_global **global) {
     int i = -1;
 
     (*global)->philos = malloc(sizeof(t_philo) * (*global)->info.n_philo);
@@ -94,6 +94,7 @@ static void create_philosophers(t_global **global) {
 
     pthread_join((*global)->philos_threads[i], NULL);
 }
+
 static void	free_all(t_global **global)
 {
 	int	i;
