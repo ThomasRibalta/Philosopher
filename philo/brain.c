@@ -27,6 +27,7 @@ static bool	one_philo_is_death(t_global **global)
 	long long		millis;
 
 	i = -1;
+	
 	while (++i != (*global)->info.n_philo)
 	{
 		gettimeofday(&current_time, NULL);
