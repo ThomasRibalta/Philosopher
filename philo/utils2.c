@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philosopher.h"
+#include "philosopher.h"
 
 int	aff_error(int e)
 {

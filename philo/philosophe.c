@@ -18,7 +18,7 @@ void	take_forks(t_philo *philo)
 		return ;
 	pthread_mutex_lock(philo->fork + philo->id);
 	pthread_mutex_lock(philo->mutex);
-	if (philo->is_dead == true  || philo->n_eat == philo->info.eat_interval)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 	{
 		pthread_mutex_unlock(philo->mutex);
 		pthread_mutex_unlock(philo->fork + philo->id);
@@ -28,7 +28,7 @@ void	take_forks(t_philo *philo)
 	pthread_mutex_lock(philo->fork + ((philo->id + 1)
 			* (philo->id != philo->info.n_philo - 1)));
 	pthread_mutex_lock(philo->mutex);
-	if (philo->is_dead == true  || philo->n_eat == philo->info.eat_interval)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 	{
 		pthread_mutex_unlock(philo->mutex);
 		pthread_mutex_unlock(philo->fork + philo->id);

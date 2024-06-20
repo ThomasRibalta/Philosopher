@@ -55,12 +55,12 @@ typedef struct s_global
 
 }					t_global;
 
+int					aff_error(int e);
 int					ft_atoi(const char *str);
 void				*philosopher_behavior(void *arg);
-int					aff_error(int e);
 void				*mind(void *arg);
 void				set_state(t_philo *philo, int state);
-int				init_global_info(t_global **global, int ac, char **av);
+int					init_global_info(t_global **global, int ac, char **av);
 void				take_forks(t_philo *philo);
 void				put_forks(t_philo *philo);
 void				ft_usleep(long int time_in_ms);

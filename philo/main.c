@@ -39,28 +39,33 @@ static void	make_philo(t_global **global, int i)
 		&(*global)->philos[i]);
 }
 
-static void	create_philosophers(t_global **global)
+static void	create_philosophers(t_global **g)
 {
-    int i = -1;
+	int	i;
 
-    (*global)->philos = malloc(sizeof(t_philo) * (*global)->info.n_philo);
-    memset((*global)->philos, 0, sizeof(t_philo) * (*global)->info.n_philo);
-    (*global)->mutex = malloc(sizeof(pthread_mutex_t));
-    memset((*global)->mutex, 0, sizeof(pthread_mutex_t));
-    (*global)->philo_mutex = malloc(sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    memset((*global)->philo_mutex, 0, sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    (*global)->fork = malloc(sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    memset((*global)->fork, 0, sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    (*global)->philos_threads = malloc(sizeof(pthread_t) * ((*global)->info.n_philo + 1));
-    memset((*global)->philos_threads, 0, sizeof(pthread_t) * ((*global)->info.n_philo + 1));
-    pthread_mutex_init((*global)->mutex, NULL);
-    while (++i != (*global)->info.n_philo) 
-        make_philo(global, i);
-    pthread_create(&((*global)->philos_threads[i]), NULL, &mind, global);
-    i = -1;
-    while (++i != (*global)->info.n_philo) 
-        pthread_join((*global)->philos_threads[i], NULL);
-    pthread_join((*global)->philos_threads[i], NULL);
+	i = -1;
+	(*g)->philos = malloc(sizeof(t_philo) * (*g)->info.n_philo);
+	memset((*g)->philos, 0, sizeof(t_philo) * (*g)->info.n_philo);
+	(*g)->mutex = malloc(sizeof(pthread_mutex_t));
+	memset((*g)->mutex, 0, sizeof(pthread_mutex_t));
+	(*g)->philo_mutex = malloc(sizeof(pthread_mutex_t)
+			* (*g)->info.n_philo);
+	memset((*g)->philo_mutex, 0, sizeof(pthread_mutex_t)
+		* (*g)->info.n_philo);
+	(*g)->fork = malloc(sizeof(pthread_mutex_t) * (*g)->info.n_philo);
+	memset((*g)->fork, 0, sizeof(pthread_mutex_t) * (*g)->info.n_philo);
+	(*g)->philos_threads = malloc(sizeof(pthread_t)
+			* ((*g)->info.n_philo + 1));
+	memset((*g)->philos_threads, 0, sizeof(pthread_t)
+		* ((*g)->info.n_philo + 1));
+	pthread_mutex_init((*g)->mutex, NULL);
+	while (++i != (*g)->info.n_philo)
+		make_philo(g, i);
+	pthread_create(&((*g)->philos_threads[i]), NULL, &mind, g);
+	i = -1;
+	while (++i != (*g)->info.n_philo)
+		pthread_join((*g)->philos_threads[i], NULL);
+	pthread_join((*g)->philos_threads[i], NULL);
 }
 
 static void	free_all(t_global **global)
@@ -88,9 +93,7 @@ int	main(int ac, char **av)
 	t_global	*global;
 
 	if ((ac < 5 || ac > 6) && !check_args(av))
-	{
 		return (aff_error(3));
-	}
 	else
 	{
 		global = malloc(sizeof(t_global));
@@ -99,11 +102,12 @@ int	main(int ac, char **av)
 			printf("Error: Memory allocation failed\n");
 			return (1);
 		}
-		if(aff_error(init_global_info(&global, ac, av)) == 0)
+		if (aff_error(init_global_info(&global, ac, av)) == 0)
 		{
 			create_philosophers(&global);
 			free_all(&global);
-		}else
+		}
+		else
 		{
 			free(global);
 			return (1);
