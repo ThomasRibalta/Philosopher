@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: thomas.rba <thomas.rba@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:29:23 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:33:41 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 22:08:05 by thomas.rba       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,59 +39,27 @@ static void	make_philo(t_global **global, int i)
 		&(*global)->philos[i]);
 }
 
-static void	create_philosophers(t_global **global) {
+static void	create_philosophers(t_global **global)
+{
     int i = -1;
 
     (*global)->philos = malloc(sizeof(t_philo) * (*global)->info.n_philo);
-    if (!(*global)->philos)
-        return;
     memset((*global)->philos, 0, sizeof(t_philo) * (*global)->info.n_philo);
-
     (*global)->mutex = malloc(sizeof(pthread_mutex_t));
-    if (!(*global)->mutex) {
-        free((*global)->philos);
-        return;
-    }
     memset((*global)->mutex, 0, sizeof(pthread_mutex_t));
-
     (*global)->philo_mutex = malloc(sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    if (!(*global)->philo_mutex) {
-        free((*global)->philos);
-        free((*global)->mutex);
-        return;
-    }
     memset((*global)->philo_mutex, 0, sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-
     (*global)->fork = malloc(sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-    if (!(*global)->fork) {
-        free((*global)->philos);
-        free((*global)->mutex);
-        free((*global)->philo_mutex);
-        return;
-    }
     memset((*global)->fork, 0, sizeof(pthread_mutex_t) * (*global)->info.n_philo);
-
     (*global)->philos_threads = malloc(sizeof(pthread_t) * ((*global)->info.n_philo + 1));
-    if (!(*global)->philos_threads) {
-        free((*global)->philos);
-        free((*global)->mutex);
-        free((*global)->philo_mutex);
-        free((*global)->fork);
-        return;
-    }
     memset((*global)->philos_threads, 0, sizeof(pthread_t) * ((*global)->info.n_philo + 1));
-
     pthread_mutex_init((*global)->mutex, NULL);
-
     while (++i != (*global)->info.n_philo) 
         make_philo(global, i);
-
     pthread_create(&((*global)->philos_threads[i]), NULL, &mind, global);
-
     i = -1;
     while (++i != (*global)->info.n_philo) 
         pthread_join((*global)->philos_threads[i], NULL);
-
     pthread_join((*global)->philos_threads[i], NULL);
 }
 
@@ -121,7 +89,7 @@ int	main(int ac, char **av)
 
 	if ((ac < 5 || ac > 6) && !check_args(av))
 	{
-		return (0);
+		return (aff_error(3));
 	}
 	else
 	{
@@ -131,9 +99,15 @@ int	main(int ac, char **av)
 			printf("Error: Memory allocation failed\n");
 			return (1);
 		}
-		init_global_info(&global, ac, av);
-		create_philosophers(&global);
-		free_all(&global);
+		if(aff_error(init_global_info(&global, ac, av)) == 0)
+		{
+			create_philosophers(&global);
+			free_all(&global);
+		}else
+		{
+			free(global);
+			return (1);
+		}
 	}
 	return (0);
 }

@@ -14,11 +14,11 @@
 
 void	take_forks(t_philo *philo)
 {
-	if (philo->is_dead == true)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 		return ;
 	pthread_mutex_lock(philo->fork + philo->id);
 	pthread_mutex_lock(philo->mutex);
-	if (philo->is_dead == true)
+	if (philo->is_dead == true  || philo->n_eat == philo->info.eat_interval)
 	{
 		pthread_mutex_unlock(philo->mutex);
 		pthread_mutex_unlock(philo->fork + philo->id);
@@ -28,7 +28,7 @@ void	take_forks(t_philo *philo)
 	pthread_mutex_lock(philo->fork + ((philo->id + 1)
 			* (philo->id != philo->info.n_philo - 1)));
 	pthread_mutex_lock(philo->mutex);
-	if (philo->is_dead == true)
+	if (philo->is_dead == true  || philo->n_eat == philo->info.eat_interval)
 	{
 		pthread_mutex_unlock(philo->mutex);
 		pthread_mutex_unlock(philo->fork + philo->id);
@@ -42,7 +42,7 @@ void	take_forks(t_philo *philo)
 
 static void	philo_think(t_philo *philo)
 {
-	if (philo->is_dead == true)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 		return ;
 	set_state(philo, 0);
 	return ;
@@ -50,7 +50,7 @@ static void	philo_think(t_philo *philo)
 
 static void	philo_sleep(t_philo *philo)
 {
-	if (philo->is_dead == true)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 		return ;
 	set_state(philo, 2);
 	ft_usleep(philo->info.time_sleep);
@@ -59,11 +59,13 @@ static void	philo_sleep(t_philo *philo)
 
 static void	philo_eat(t_philo *philo)
 {
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
+		return ;
 	set_state(philo, 1);
 	pthread_mutex_lock(philo->mutex);
 	gettimeofday(&(philo->last_time_eat), NULL);
 	pthread_mutex_unlock(philo->mutex);
-	if (philo->is_dead == true)
+	if (philo->is_dead == true || philo->n_eat == philo->info.eat_interval)
 		return ;
 	ft_usleep(philo->info.time_eat);
 	pthread_mutex_lock(philo->mutex);

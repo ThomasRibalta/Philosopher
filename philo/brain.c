@@ -60,22 +60,21 @@ static void	kill_all_philos(t_global **global)
 static bool	end_eat_interval(t_global **global)
 {
 	int		i;
+	int		j;
 	bool	result;
 
 	i = -1;
+	j = 0;
 	while (++i != (*global)->info.n_philo)
 	{
 		if ((*global)->philos[i].n_eat >= (*global)->info.eat_interval
 			&& (*global)->info.eat_interval != -1)
-		{
-			result = true;
-		}
-		else
-		{
-			result = false;
-			break ;
-		}
+			j++;
 	}
+	if (j == (*global)->info.n_philo)
+		result = true;
+	else
+		result = false;
 	return (result);
 }
 

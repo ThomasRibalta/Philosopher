@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: thomas.rba <thomas.rba@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:33:54 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:33:55 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 22:06:38 by thomas.rba       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,20 +72,25 @@ void	ft_usleep(long int time_in_ms)
 		usleep(time_in_ms / 10);
 }
 
-void	init_global_info(t_global **global, int ac, char **av)
+int	init_global_info(t_global **global, int ac, char **av)
 {
 	t_info	info;
 
 	info.n_philo = atoi(av[1]);
+	if (info.n_philo < 1 || info.n_philo > 200)
+		return (1);
 	info.time_die = atoi(av[2]);
 	info.time_eat = atoi(av[3]);
 	info.time_sleep = atoi(av[4]);
+	if (info.time_die <= 60 || info.time_eat <= 60 || info.time_sleep <= 60)
+		return (2);
 	gettimeofday(&(info.start_time), NULL);
 	if (ac == 6)
-		info.eat_interval = atoi(av[5]) - 1;
+		info.eat_interval = atoi(av[5]);
 	else
 		info.eat_interval = -1;
 	(*global)->info = info;
+	return (0);
 }
 
 void	put_forks(t_philo *philo)

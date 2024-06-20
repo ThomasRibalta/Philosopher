@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosopher.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: toto <toto@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: thomas.rba <thomas.rba@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 17:34:21 by toto              #+#    #+#             */
-/*   Updated: 2024/05/19 17:34:45 by toto             ###   ########.fr       */
+/*   Updated: 2024/06/20 22:06:23 by thomas.rba       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,10 @@ typedef struct s_global
 
 int					ft_atoi(const char *str);
 void				*philosopher_behavior(void *arg);
+int					aff_error(int e);
 void				*mind(void *arg);
 void				set_state(t_philo *philo, int state);
-void				init_global_info(t_global **global, int ac, char **av);
+int				init_global_info(t_global **global, int ac, char **av);
 void				take_forks(t_philo *philo);
 void				put_forks(t_philo *philo);
 void				ft_usleep(long int time_in_ms);

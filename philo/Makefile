@@ -5,7 +5,8 @@ FLAGS = -Wall -Wextra -Werror
 
 SRC_1 = brain.c \
 	philosophe.c \
-	utils.c
+	utils.c \
+	utils2.c \
 			
 
 OBJ_1 = ${SRC_1:.c=.o}
